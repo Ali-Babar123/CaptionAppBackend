@@ -2,10 +2,13 @@ const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema(
   {
-    // Required fields
-    fullName: { type: String, required: true },
+    // Firebase user ID (for Google login)
+   googleId: { type: String, unique: true, sparse: true },
+
+    // Required fields for manual signup (not required for Google login)
+    fullName: { type: String },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String }, // optional for Google users
 
     // Default optional fields
     username: { type: String, default: '' },
