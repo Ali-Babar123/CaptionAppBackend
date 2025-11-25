@@ -61,7 +61,7 @@ const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ fullName, email, password: hashedPassword });
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
     res.status(201).json({ message: 'Signup successful', token, user: formatUserResponse(user) });
   } catch (error) {
@@ -85,7 +85,7 @@ const login = async (req, res) => {
     user.lastActive = new Date();
     await user.save();
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
     res.json({ message: 'Login successful', token, user: formatUserResponse(user) });
   } catch (error) {
@@ -122,7 +122,7 @@ const googleLogin = async (req, res) => {
       await user.save();
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
     res.json({ message: 'Google login successful', token, user: formatUserResponse(user) });
   } catch (error) {

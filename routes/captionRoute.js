@@ -4,10 +4,10 @@ const captionController = require('../controller/captionController');
 const authMiddleware = require('../middleware/authMiddleware')
 // Create Caption
 router.post('/add', authMiddleware, captionController.createCaption);
-router.post('/getAllCaption',  captionController.getCaptions);
+router.get('/getAllCaption',  captionController.getCaptions);
 
-router.post('/updateCaption/:id', authMiddleware, captionController.updateCaption);
-router.post('/deleteCaption/:id', authMiddleware, captionController.deleteCaption);
+router.put('/updateCaption/:id', authMiddleware, captionController.updateCaption);
+router.delete('/deleteCaption/:id', authMiddleware, captionController.deleteCaption);
 
 
 module.exports = router;
