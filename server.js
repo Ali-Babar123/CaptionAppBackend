@@ -3,6 +3,7 @@ const express = require('express');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoute');
 const captionRoute = require('./routes/captionRoute');
+const categoryRoutes = require('./routes/categoryRoutes')
 const app = express();
 const PORT = process.env.PORT || 2000;
 
@@ -15,6 +16,7 @@ connectDB();
 // ✅ Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/caption', captionRoute);
+app.use("/api/categories", categoryRoutes);
 
 
 app.get('/', (req, res) => {

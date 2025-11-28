@@ -4,8 +4,12 @@ const User = require('../models/User');
 // CREATE
 exports.createCaption = async (req, res) => {
   try {
-    const { captions, hashtags, planner, templateUrl } = req.body;
+    const { captions, hashtags, planner, templateUrl, category } = req.body;
     const userId = req.user._id;
+
+    if (!category) {
+      return res.status(400).json({ message: "Category is required" });
+    }
 
     const caption = new Caption({
       user: userId,
@@ -13,6 +17,7 @@ exports.createCaption = async (req, res) => {
       hashtags,
       templates: templateUrl,
       planner,
+      category, // ⭐ Added
     });
 
     await caption.save();
@@ -30,7 +35,7 @@ exports.updateCaption = async (req, res) => {
     const { id } = req.params;
     const userId = req.user._id;
 
-    const { captions, hashtags, planner, templateUrl } = req.body;
+    const { captions, hashtags, planner, templateUrl, category } = req.body;
 
     const updatedCaption = await Caption.findOneAndUpdate(
       { _id: id, user: userId },
@@ -39,6 +44,7 @@ exports.updateCaption = async (req, res) => {
         hashtags,
         planner,
         templates: templateUrl,
+        category, // ⭐ Added
       },
       { new: true }
     );
@@ -55,7 +61,6 @@ exports.updateCaption = async (req, res) => {
 };
 
 
-
 exports.getCaptions = async (req, res) => {
   try {
     const captions = await Caption.find().sort({ createdAt: -1 });
@@ -66,7 +71,6 @@ exports.getCaptions = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 
 exports.deleteCaption = async (req, res) => {
@@ -86,5 +90,3 @@ exports.deleteCaption = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-

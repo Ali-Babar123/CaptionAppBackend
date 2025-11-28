@@ -143,4 +143,96 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, googleLogin, getMe };
+
+const updateUserName = async (req, res) => {
+  try {
+    const userId = req.user._id;   // From auth middleware
+    const { fullName } = req.body;
+
+    if (!fullName) {
+      return res.status(400).json({ message: "Full name is required" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { fullName },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Name updated successfully",
+      user: {
+        _id: updatedUser._id,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        photoUrl: updatedUser.photoUrl,
+      }
+    });
+
+  } catch (error) {
+    console.error("Update name error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
+
+const signupWithoutPassword = async (req, res) => {
+  try {
+    const { fullName, email } = req.body;
+
+    // Validate input
+    if (!fullName || !email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+
+    // Check existing user
+    let existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email already registered" });
+    }
+
+    // Create user
+    const newUser = new User({
+      fullName,
+      email,
+      password: null, // No password
+    });
+
+    await newUser.save();
+
+    // Create token
+    const token = jwt.sign(
+      {
+        id: newUser._id,
+        email: newUser.email,
+      },
+      process.env.JWT_SECRET
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Signup successful!",
+      token,
+      user: {
+        id: newUser._id,
+        fullName: newUser.fullName,
+        email: newUser.email,
+      },
+    });
+  } catch (error) {
+    console.error("Signup error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+module.exports = { signup, login, googleLogin, getMe, updateUserName, signupWithoutPassword };
