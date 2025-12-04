@@ -235,4 +235,60 @@ const signupWithoutPassword = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, googleLogin, getMe, updateUserName, signupWithoutPassword };
+
+// ---------------- GET SINGLE USER BY ID ----------------
+const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Validate ID
+    if (!id) return res.status(400).json({ message: "User ID is required" });
+
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Return formatted user data
+    res.status(200).json({
+      success: true,
+      user: formatUserResponse(user),
+    });
+
+  } catch (error) {
+    console.error("Get single user error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// ---------------- CHECK EMAIL EXISTS ----------------
+const checkEmailExists = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user) {
+      return res.status(200).json({
+        exists: true,
+        message: "Email already registered",
+      });
+    }
+
+    return res.status(200).json({
+      exists: false,
+      message: "Email is not available",
+    });
+
+  } catch (error) {
+    console.error("Email check error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = { signup, login, googleLogin, getMe, updateUserName, signupWithoutPassword, getUserById, checkEmailExists };

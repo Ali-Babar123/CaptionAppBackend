@@ -1,5 +1,5 @@
 const express = require('express');
-const { signup, login, getMe, googleLogin, updateUserName, signupWithoutPassword } = require('../controller/authController');
+const { signup, login, getMe, googleLogin, updateUserName, signupWithoutPassword, getUserById, checkEmailExists } = require('../controller/authController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -10,6 +10,9 @@ router.post('/google-login', googleLogin);
 router.put('/update-name', authMiddleware, updateUserName);
 
 router.post("/signupwithoutPassword", signupWithoutPassword);
+router.get('/getUserById/:id', authMiddleware, getUserById);
+router.post('/check-email',  checkEmailExists);
+
 
 // Protected route
 router.get('/me', authMiddleware, getMe);
