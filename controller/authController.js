@@ -268,26 +268,40 @@ const checkEmailExists = async (req, res) => {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ message: "Email is required" });
+      return res.status(400).json({ success: false, message: "Email is required" });
     }
 
     const user = await User.findOne({ email });
 
     if (user) {
-      return res.status(200).json({
+      // ✅ Generate JWT if user exists (NO userType)
+      const token = jwt.sign(
+        { id: user._id, email: user.email },
+        process.env.JWT_SECRET
+      );
+
+      return res.json({
+        success: true,
         exists: true,
-        message: "Email already registered",
+        message: "Login successful",
+        token,
+        user: {
+          id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+        },
+      });
+    } else {
+      // ✅ User does not exist
+      return res.json({
+        success: true,
+        exists: false,
+        message: "User not found",
       });
     }
-
-    return res.status(200).json({
-      exists: false,
-      message: "Email is not available",
-    });
-
   } catch (error) {
-    console.error("Email check error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Check email error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
