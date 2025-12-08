@@ -8,11 +8,8 @@ let otpStore = {};
 
 function sendEmail({ recipient_email, OTP }) {
   return new Promise((resolve, reject) => {
-    // ✅ Use explicit host/port instead of service: "gmail"
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false, // true for 465, false for 587
+      service: "gmail",
       auth: {
         user: process.env.MY_EMAIL,
         pass: process.env.MY_PASSWORD,
@@ -26,19 +23,15 @@ function sendEmail({ recipient_email, OTP }) {
       html: `<div>
               <h2>${OTP}</h2>
               <p>Use this OTP to recover your password. Valid for 5 minutes.</p>
-             </div>`,
+             </div>`
     };
 
     transporter.sendMail(mail_configs, (error, info) => {
-      if (error) {
-        console.log("Email error:", error); // ✅ log full error for debugging
-        return reject({ message: "Email sending failed" });
-      }
+      if (error) return reject({ message: "Email sending failed" });
       return resolve({ message: "Email sent successfully" });
     });
   });
 }
-
 
 // Step 1: Request password reset (generate + email OTP)
 // Step 1: Request password reset (generate + email OTP)
