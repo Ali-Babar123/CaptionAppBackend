@@ -26,6 +26,10 @@ const HashtagSchema = new mongoose.Schema(
       min: 1,
       max: 10, // ✔ only 1 to 10 allowed
     },
+    hashtag:{
+      type: String,
+      required: true
+    }
   },
   { timestamps: true }
 );

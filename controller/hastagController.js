@@ -3,9 +3,9 @@ const Hashtag = require('../models/Hastags');
 // CREATE
 const createHashtag = async (req, res) => {
   try {
-    const { description, platform, language, numberOfHashtags } = req.body;
+    const { description, platform, language, numberOfHashtags, hashtag } = req.body;
 
-    if (!description || !platform || !language || !numberOfHashtags) {
+    if (!description || !platform || !language || !numberOfHashtags || !hashtag) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -24,6 +24,7 @@ const createHashtag = async (req, res) => {
       platform,
       language,
       numberOfHashtags,
+      hashtag
     });
 
     return res.json({
