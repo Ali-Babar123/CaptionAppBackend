@@ -5,7 +5,9 @@ const authRoutes = require('./routes/authRoute');
 const captionRoute = require('./routes/captionRoute');
 const categoryRoutes = require('./routes/categoryRoutes')
 const hastagRoute = require('./routes/hastags')
-const plannerRoute = require('./routes/planner')
+const plannerRoute = require('./routes/planner');
+const emailRoute = require('./routes/EmailRoute');
+const resetPasswordRoute = require('./routes/resetPassword')
 
 const app = express();
 const PORT = process.env.PORT || 2000;
@@ -22,6 +24,9 @@ app.use('/api/caption', captionRoute);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/hastag", hastagRoute);
 app.use('/api/planner', plannerRoute);
+app.use('/api/email', emailRoute);
+app.use('/api/auth', resetPasswordRoute);
+
 
 app.get('/', (req, res) => {
   res.send('Backend is running');
