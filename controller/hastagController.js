@@ -70,11 +70,11 @@ const getSingleHashtag = async (req, res) => {
 const updateHashtag = async (req, res) => {
   try {
     const id = req.params.id;
-    const { description, platform, language, numberOfHashtags } = req.body;
+    const { description, platform, language, numberOfHashtags, hashtag } = req.body;
 
     const updated = await Hashtag.findByIdAndUpdate(
       id,
-      { description, platform, language, numberOfHashtags },
+      { description, platform, language, numberOfHashtags, hashtag },
       { new: true }
     );
 
