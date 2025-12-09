@@ -146,38 +146,52 @@ const getMe = async (req, res) => {
 
 const updateUserName = async (req, res) => {
   try {
-    const userId = req.user._id;   // From auth middleware
-    const { fullName } = req.body;
+    const userId = req.user._id;  // Logged-in user ID
 
-    if (!fullName) {
-      return res.status(400).json({ message: "Full name is required" });
-    }
+    const {
+      fullName,
+      username,
+      dateOfBirth,
+      gender,
+      interests,
+      photoUrl,
+    } = req.body;
+
+    const updateData = {};
+
+    if (fullName !== undefined) updateData.fullName = fullName;
+    if (username !== undefined) updateData.username = username;
+
+    if (dateOfBirth !== undefined && dateOfBirth !== "")
+      updateData.dateOfBirth = new Date(dateOfBirth);
+
+    if (gender !== undefined) updateData.gender = gender;
+
+    if (photoUrl !== undefined) updateData.photoUrl = photoUrl;
+
+    if (interests !== undefined) updateData.interests = interests;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { fullName },
+      updateData,
       { new: true }
     );
 
-    if (!updatedUser) {
+    if (!updatedUser)
       return res.status(404).json({ message: "User not found" });
-    }
 
-    res.status(200).json({
-      message: "Name updated successfully",
-      user: {
-        _id: updatedUser._id,
-        fullName: updatedUser.fullName,
-        email: updatedUser.email,
-        photoUrl: updatedUser.photoUrl,
-      }
+    res.json({
+      success: true,
+      message: "Profile updated successfully!",
+      user: formatUserResponse(updatedUser),
     });
 
   } catch (error) {
-    console.error("Update name error:", error);
+    console.error("Update profile error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 
 

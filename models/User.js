@@ -15,8 +15,8 @@ const UserSchema = new mongoose.Schema(
     termsAccepted: { type: Boolean, default: false },
     photoUrl: { type: String },
     bio: { type: String },
-    dateOfBirth: { type: Date },
-    gender: { type: String },
+    dateOfBirth: { type: Date, default: null },
+    gender: { type: String, default: '' },
 
     // Preferences
     goals: [{ type: String }],
