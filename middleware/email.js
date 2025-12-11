@@ -1,35 +1,31 @@
-const nodemailer = require("nodemailer");
+// utils/sendOtpEmail.js
+const sgMail = require("@sendgrid/mail");
 
-async function sendVerificationEmail(email, otp) {
-      if (!email) {
-    throw new Error("❌ No recipient email provided");
-  }
-  console.log("📧 Sending OTP to:", email, "OTP:", otp);
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.MY_EMAIL,
-      pass: process.env.MY_PASSWORD,
-    },
-  });
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const mailOptions = {
-    from: process.env.MY_EMAIL,
-    to: email,
-    subject: "Verify Your Email",
+async function sendOtpEmail(recipient_email, OTP) {
+  const msg = {
+    to: recipient_email,
+    from: process.env.FROM_EMAIL, // Must be verified in SendGrid dashboard
+    subject: "Password Recovery OTP",
     html: `
-      <div style="font-family:Arial,sans-serif;line-height:1.5">
-        <h2>Email Verification</h2>
-        <p>Use the following OTP to verify your account:</p>
-        <h3 style="background:#00466a;color:#fff;display:inline-block;padding:8px 16px;border-radius:4px;">
-          ${otp}
+      <div style="font-family:Arial,sans-serif;">
+        <h2>Password Recovery</h2>
+        <p>Your OTP is:</p>
+        <h3 style="background:#00466a;color:#fff;display:inline-block;padding:10px 20px;border-radius:5px;">
+          ${OTP}
         </h3>
-        <p>This OTP will expire in 60 sec.</p>
+        <p>Valid for 5 minutes.</p>
       </div>
     `,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    await sgMail.send(msg);
+    console.log("Email sent successfully");
+  } catch (error) {
+    console.log("SendGrid Error:", error.response?.body || error.message);
+  }
 }
 
-module.exports = sendVerificationEmail;
+module.exports = sendOtpEmail;

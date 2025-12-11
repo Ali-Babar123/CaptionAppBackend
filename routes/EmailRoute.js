@@ -1,77 +1,66 @@
+// routes/otpRoutes.js
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const sendOtpEmail = require("../middleware/email"); // adjust path if needed
 
-// Temporary in-memory OTP store (better: MongoDB/Redis with expiry)
+// Temporary in-memory OTP store
 let otpStore = {};
 
-function sendEmail({ recipient_email, OTP }) {
-  return new Promise((resolve, reject) => {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.MY_EMAIL,
-        pass: process.env.MY_PASSWORD,
-      },
-    });
-
-    const mail_configs = {
-      from: process.env.MY_EMAIL,
-      to: recipient_email,
-      subject: "PASSWORD RECOVERY",
-      html: `<div>
-              <h2>${OTP}</h2>
-              <p>Use this OTP to recover your password. Valid for 5 minutes.</p>
-             </div>`
-    };
-
-    transporter.sendMail(mail_configs, (error, info) => {
-      if (error) return reject({ message: "Email sending failed" });
-      return resolve({ message: "Email sent successfully" });
-    });
-  });
-}
-
-// Step 1: Request password reset (generate + email OTP)
-// Step 1: Request password reset (generate + email OTP)
+// STEP 1 — Send OTP
 router.post("/send_recovery_email", async (req, res) => {
   try {
     const { recipient_email } = req.body;
+
     if (!recipient_email) {
       return res.status(400).json({ success: false, message: "Email required" });
     }
 
-    // 4-digit OTP instead of 6
+    // Generate 4 digit OTP
     const OTP = crypto.randomInt(1000, 9999).toString();
 
-    otpStore[recipient_email] = { otp: OTP, expires: Date.now() + 5 * 60 * 1000 };
+    // Store with expiry (5 minutes)
+    otpStore[recipient_email] = {
+      otp: OTP,
+      expires: Date.now() + 5 * 60 * 1000
+    };
 
-    await sendEmail({ recipient_email, OTP });
+    // Send OTP using SendGrid
+    await sendOtpEmail(recipient_email, OTP);
+
     res.json({ success: true, message: "OTP sent to email" });
 
   } catch (error) {
-    res.status(500).json(error);
+    console.log("Send email error:", error);
+    res.status(500).json({ success: false, message: "Failed to send OTP email" });
   }
 });
 
 
-// Step 2: Verify OTP
+// STEP 2 — Verify OTP
 router.post("/verify_otp", (req, res) => {
   const { recipient_email, otp } = req.body;
 
   const record = otpStore[recipient_email];
-  if (!record) return res.status(400).json({ success: false, message: "No OTP found. Request again." });
+  if (!record) {
+    return res.status(400).json({
+      success: false,
+      message: "No OTP found. Request again."
+    });
+  }
 
+  // Check expiry
   if (record.expires < Date.now()) {
     delete otpStore[recipient_email];
     return res.status(400).json({ success: false, message: "OTP expired" });
   }
 
+  // Check match
   if (record.otp !== otp) {
     return res.status(400).json({ success: false, message: "Invalid OTP" });
   }
 
+  // Success
   res.json({ success: true, message: "OTP verified. You can now reset password." });
 });
 
