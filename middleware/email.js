@@ -1,18 +1,19 @@
 const nodemailer = require("nodemailer");
 
 async function sendVerificationEmail(email, otp) {
-  if (!email) {
+      if (!email) {
     throw new Error("❌ No recipient email provided");
   }
   console.log("📧 Sending OTP to:", email, "OTP:", otp);
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.MY_EMAIL,
+      pass: process.env.MY_PASSWORD,
+    },
+  });
 
-  // Try both ports: 587 (TLS) first, then 465 (SSL)
-  const options = [
-    { port: 587, secure: false }, // TLS
-    { port: 465, secure: true },  // SSL
-  ];
-
-  const mailOptions = {
+const mailOptions = {
     from: process.env.MY_EMAIL,
     to: email,
     subject: "Verify Your Email",
@@ -28,28 +29,7 @@ async function sendVerificationEmail(email, otp) {
     `,
   };
 
-  for (let opt of options) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: opt.port,
-        secure: opt.secure,
-        auth: {
-          user: process.env.MY_EMAIL,
-          pass: process.env.MY_PASSWORD,
-        },
-      });
-
-      let info = await transporter.sendMail(mailOptions);
-      console.log(`✅ Email sent via port ${opt.port}:`, info.response);
-      return; // success
-    } catch (error) {
-      console.log(`❌ Failed on port ${opt.port}:`, error.response || error.toString());
-      // try next port
-    }
-  }
-
-  throw new Error("Email sending failed on both ports");
+  await transporter.sendMail(mailOptions);
 }
 
 module.exports = sendVerificationEmail;
