@@ -30,6 +30,28 @@ exports.createCaption = async (req, res) => {
 };
 
 
+exports.getSingleCaption = async (req, res) =>{
+  try {
+    const {id} = req.params;
+
+    const userId = req.user._id;
+
+    const caption = await Caption.findOne({
+      _id: id,
+      user: userId
+    })
+
+   if (!caption) {
+      return res.status(404).json({ message: "Caption not found" });
+    }
+
+    res.status(200).json({ caption });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 exports.updateCaption = async (req, res) => {
   try {
     const { id } = req.params;

@@ -146,8 +146,11 @@ const getMe = async (req, res) => {
 
 const updateUserName = async (req, res) => {
   try {
-    const userId = req.user._id;  // Logged-in user ID
-
+    const userId = req.params?.id;  // Logged-in user ID
+    if(userId?.length < 24){
+      throw new Error("Error: userId must be 24.");
+    }
+    console.log(userId)
     const {
       fullName,
       username,
