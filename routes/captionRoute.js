@@ -7,6 +7,7 @@ router.post('/add', authMiddleware, captionController.createCaption);
 router.get('/getAllCaption',  captionController.getCaptions);
 router.get('/getSingleCaption/:id', authMiddleware,  captionController.getSingleCaption);
 
+router.get('/getCaptionsByUserId/:userId', authMiddleware, captionController.getCaptionsByUserId);
 
 router.put('/updateCaption/:id', authMiddleware, captionController.updateCaption);
 router.delete('/deleteCaption/:id', authMiddleware, captionController.deleteCaption);

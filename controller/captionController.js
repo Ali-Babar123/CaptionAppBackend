@@ -22,10 +22,37 @@ exports.createCaption = async (req, res) => {
 
     await caption.save();
 
-    res.status(201).json({ message: 'Caption saved successfully', caption });
+    res.status(200).json({ message: 'Caption saved successfully', caption });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+// GET captions by User ID
+exports.getCaptionsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const captions = await Caption.find({ user: userId }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: captions.length,
+      data: captions,
+    });
+  } catch (error) {
+    console.error("Get captions by userId error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
@@ -110,5 +137,32 @@ exports.deleteCaption = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+// GET captions by User ID
+exports.getCaptionsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const captions = await Caption.find({ user: userId }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      count: captions.length,
+      data: captions,
+    });
+  } catch (error) {
+    console.error("Get captions by userId error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };

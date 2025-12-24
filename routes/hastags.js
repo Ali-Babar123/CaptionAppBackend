@@ -9,6 +9,8 @@ router.post('/createHastag', authMiddleware, hashtagController.createHashtag);
 // Get all Hashtags
 router.get('/getAllHastag', authMiddleware, hashtagController.getAllHashtags);
 
+router.get('/getHashtagsByUserId/:userId', authMiddleware, hashtagController.getHashtagsByUserId);
+
 // Get single Hashtag
 router.get('/getSingleHastag/:id', authMiddleware, hashtagController.getSingleHashtag);
 

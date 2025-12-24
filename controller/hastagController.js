@@ -2,6 +2,7 @@ const Hashtag = require('../models/Hastags');
 
 // CREATE
 const createHashtag = async (req, res) => {
+  const userId = req.user._id;
   try {
     const { description, platform, language, numberOfHashtags, hashtag } = req.body;
 
@@ -20,6 +21,7 @@ const createHashtag = async (req, res) => {
     }
 
     const newData = await Hashtag.create({
+      user: userId,
       description,
       platform,
       language,
@@ -28,6 +30,7 @@ const createHashtag = async (req, res) => {
     });
 
     return res.json({
+      user: userId,
       success: true,
       message: "Hashtag data saved successfully",
       data: newData,
@@ -93,6 +96,33 @@ const updateHashtag = async (req, res) => {
   }
 };
 
+
+// GET Hashtags by User ID
+const getHashtagsByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const hashtags = await Hashtag.find({ user: userId }).sort({ createdAt: -1 });
+
+    return res.json({
+      success: true,
+      count: hashtags.length,
+      data: hashtags,
+    });
+  } catch (error) {
+    console.log("Get hashtags by userId error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
 // DELETE
 const deleteHashtag = async (req, res) => {
   try {
@@ -116,4 +146,5 @@ module.exports = {
   getSingleHashtag,
   updateHashtag,
   deleteHashtag,
+  getHashtagsByUserId, // ✅ add this
 };

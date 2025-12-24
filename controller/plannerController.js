@@ -2,6 +2,7 @@ const Planner = require('../models/Planner');
 
 // CREATE Planner
 const createPlanner = async (req, res) => {
+   const userId = req.user._id;
   try {
     const { goalType, duration, timeAvailability, description } = req.body;
 
@@ -13,6 +14,7 @@ const createPlanner = async (req, res) => {
     }
 
     const newPlanner = await Planner.create({
+      user: userId,
       goalType,
       duration,
       timeAvailability,
@@ -20,6 +22,7 @@ const createPlanner = async (req, res) => {
     });
 
     return res.json({
+      user: userId,
       success: true,
       message: "Planner created successfully",
       data: newPlanner,
@@ -57,6 +60,38 @@ const getSinglePlanner = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+// get user related planners
+// GET Planners by User ID
+const getPlannersByUserId = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const planners = await Planner.find({ user: userId })
+      .sort({ createdAt: -1 });
+
+    return res.json({
+      success: true,
+      count: planners.length,
+      data: planners,
+    });
+  } catch (error) {
+    console.log("Get planners by userId error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
 
 // UPDATE Planner
 const updatePlanner = async (req, res) => {
@@ -108,4 +143,5 @@ module.exports = {
   getSinglePlanner,
   updatePlanner,
   deletePlanner,
+  getPlannersByUserId
 };

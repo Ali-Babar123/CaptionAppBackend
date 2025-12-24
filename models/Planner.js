@@ -1,7 +1,13 @@
 const mongoose = require('mongoose');
 
 const PlannerSchema = new mongoose.Schema(
+
   {
+     user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
     goalType: {
       type: String,
       enum: ["Productivity", "Fitness", "Study", "Career", "Lifestyle"],

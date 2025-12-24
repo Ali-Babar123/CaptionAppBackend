@@ -15,6 +15,10 @@ router.get('/getSinglePlanner/:id', authMiddleware, plannerController.getSingleP
 // Update Planner
 router.put('/updatePlanner/:id', authMiddleware, plannerController.updatePlanner);
 
+
+// get user planner
+router.get('/getPlannerByUserId/:userId', authMiddleware, plannerController.getPlannersByUserId);
+
 // Delete Planner
 router.delete('/deletePlanner/:id', authMiddleware, plannerController.deletePlanner);
 
