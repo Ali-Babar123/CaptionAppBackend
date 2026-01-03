@@ -258,8 +258,9 @@ const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate ID
-    if (!id) return res.status(400).json({ message: "User ID is required" });
+    if (!id) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
 
     const user = await User.findById(id);
 
@@ -267,17 +268,18 @@ const getUserById = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Return formatted user data
     res.status(200).json({
       success: true,
       user: formatUserResponse(user),
+      token: req.token || req.headers.authorization?.split(" ")[1],
     });
 
   } catch (error) {
     console.error("Get single user error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // ---------------- CHECK EMAIL EXISTS ----------------
 const checkEmailExists = async (req, res) => {
