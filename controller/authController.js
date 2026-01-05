@@ -303,17 +303,12 @@ const checkEmailExists = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user) {
-      // ✅ Generate JWT if user exists (NO userType)
-      const token = jwt.sign(
-        { id: user._id, email: user.email },
-        process.env.JWT_SECRET
-      );
-
+      // ✅ Return the SAME token user received at login
       return res.json({
         success: true,
         exists: true,
         message: "Login successful",
-        token,
+        token: user.authToken || null, // returns stored token if exists
         user: {
           id: user._id,
           fullName: user.fullName,
@@ -321,7 +316,6 @@ const checkEmailExists = async (req, res) => {
         },
       });
     } else {
-      // ✅ User does not exist
       return res.json({
         success: true,
         exists: false,
@@ -333,5 +327,6 @@ const checkEmailExists = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 module.exports = { signup, login, googleLogin, getMe, updateUserName, signupWithoutPassword, getUserById, checkEmailExists };
