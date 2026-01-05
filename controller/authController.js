@@ -53,7 +53,8 @@ const formatUserResponse = (user) => ({
 const signup = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
-    if (!fullName || !email || !password) return res.status(400).json({ message: 'All fields required' });
+    if (!fullName || !email || !password) 
+      return res.status(400).json({ message: 'All fields required' });
 
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
@@ -61,14 +62,25 @@ const signup = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ fullName, email, password: hashedPassword });
 
+    // ✅ Generate token without expiration
     const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
-    res.status(201).json({ message: 'Signup successful', token, user: formatUserResponse(user) });
+    // ✅ Store token in user document
+    user.authToken = token;
+    await user.save();
+
+    res.status(201).json({ 
+      message: 'Signup successful', 
+      token, 
+      user: formatUserResponse(user) 
+    });
+
   } catch (error) {
     console.error('Signup error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // ---------------- LOGIN ----------------
 const login = async (req, res) => {
@@ -213,22 +225,15 @@ const signupWithoutPassword = async (req, res) => {
   try {
     const { fullName, email } = req.body;
 
-    // Validate input
     if (!fullName || !email) {
-      return res
-        .status(400)
-        .json({ success: false, message: "All fields are required" });
+      return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
-    // Check existing user
     let existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Email already registered" });
+      return res.status(400).json({ success: false, message: "Email already registered" });
     }
 
-    // Create user
     const newUser = new User({
       fullName,
       email,
@@ -237,14 +242,12 @@ const signupWithoutPassword = async (req, res) => {
 
     await newUser.save();
 
-    // Create token
-    const token = jwt.sign(
-      {
-        id: newUser._id,
-        email: newUser.email,
-      },
-      process.env.JWT_SECRET
-    );
+    // ✅ Generate token without expiration
+    const token = jwt.sign({ userId: newUser._id }, JWT_SECRET);
+
+    // ✅ Store token in user document
+    newUser.authToken = token;
+    await newUser.save();
 
     res.status(200).json({
       success: true,
@@ -256,11 +259,13 @@ const signupWithoutPassword = async (req, res) => {
         email: newUser.email,
       },
     });
+
   } catch (error) {
-    console.error("Signup error:", error);
+    console.error("Signup without password error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 
 // ---------------- GET SINGLE USER BY ID ----------------
