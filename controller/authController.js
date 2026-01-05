@@ -74,7 +74,8 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ message: 'Email and password required' });
+    if (!email || !password)
+      return res.status(400).json({ message: 'Email and password required' });
 
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -82,17 +83,26 @@ const login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
-    user.lastActive = new Date();
-    await user.save();
-
+    // ✅ generate token WITHOUT expiration
     const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
-    res.json({ message: 'Login successful', token, user: formatUserResponse(user) });
+    // ✅ store token in DB
+    user.lastActive = new Date();
+    user.authToken = token;
+    await user.save();
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: formatUserResponse(user)
+    });
+
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
 
 // ---------------- GOOGLE LOGIN ----------------
 const googleLogin = async (req, res) => {
@@ -271,7 +281,7 @@ const getUserById = async (req, res) => {
     res.status(200).json({
       success: true,
       user: formatUserResponse(user),
-      token: req.token || req.headers.authorization?.split(" ")[1],
+      token: user.authToken // ✅ returns SAME token as login
     });
 
   } catch (error) {

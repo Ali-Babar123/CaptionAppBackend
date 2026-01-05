@@ -10,6 +10,10 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String }, // optional for Google users
 
+    authToken: {
+      type: String
+    },
+
     // Default optional fields
     username: { type: String, default: '' },
     termsAccepted: { type: Boolean, default: false },
@@ -17,6 +21,7 @@ const UserSchema = new mongoose.Schema(
     bio: { type: String },
     dateOfBirth: { type: Date, default: null },
     gender: { type: String, default: '' },
+
 
     // Preferences
     goals: [{ type: String }],
