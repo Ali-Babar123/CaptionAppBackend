@@ -10,7 +10,7 @@ router.post('/google-login', googleLogin);
 router.put('/update-name/:id', updateUserName);
 
 router.post("/signupwithoutPassword", signupWithoutPassword);
-router.get('/getUserById/:id', authMiddleware, getUserById);
+router.get('/getUserById/:id',  getUserById);
 router.post('/check-email',  checkEmailExists);
 
 
